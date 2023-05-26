@@ -3,7 +3,7 @@
 
 # [FOF] Gun Game Gamemode
 
-<p align="center">  <img src="https://connorrichlen.me/images/fof_lg.png"> <b>BGun Game Gamemode</b>   </p>
+<p align="center">  <img src="https://connorrichlen.me/images/fof_lg.png"> <b>Gun Game Gamemode</b>   </p>
 
 
   
