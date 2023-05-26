@@ -12,7 +12,7 @@ This plugin adds a Gun Game gamemode. It is an updated version of CrimsonTautolo
 
 ## Requirements
 * [SourceMod](https://www.sourcemod.net/) 1.10 or later
-* 
+
 ## Installation
 Make sure your server has SourceMod installed.  See [Installing SourceMod](https://wiki.alliedmods.net/Installing_SourceMod).  If you are new to managing SourceMod on a server be sure to read the '[Installing Plugins](https://wiki.alliedmods.net/Managing_your_sourcemod_installation#Installing_Plugins)' section from the official SourceMod Wiki.
 
