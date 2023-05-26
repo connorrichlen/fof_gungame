@@ -47,7 +47,7 @@ sm plugins list
 | `fof_gungame_config` | string | file path | Location of the Gun Game configuration file |
 | `fof_gungame_fists` | boolean | 0-1 | Whether or not to allow fists in game.  Killing someone with fists will reduce their level |
 | `fof_gungame_whiskeyjug` | boolean | 0-1 | Toggles whiskeyjug use |
-| `fof_gungame_whiskey` | boolean | 0-1 | Toggles spawning of MAP WHISKEY |
+| `fof_gungame_whiskey` | boolean | 0-1 | Toggles spawning of MAP WHISKEY ENTITIES |
 | `fof_gungame_heal` | float | 0-100 | Amount of health player recieves when ranking up |
 | `fof_gungame_equip_delay` | float | 0-999 | (deprecated) Seconds before giving new equipment on spawn |
 | `fof_gungame_drunkness` | float | 0-999 | (deprecated) Amount of "drunkness" player recieves when ranking up |
