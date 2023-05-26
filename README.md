@@ -8,7 +8,7 @@
 
   
 
-This plugin adds a Gun Game gamemode. It is an updated version of [CrimsonTautology's old release](https://github.com/CrimsonTautology/sm-gungame-fof). Has a couple fun commands, also.
+This plugin adds a Gun Game gamemode. It is an updated version of [CrimsonTautology's old release](https://github.com/CrimsonTautology/sm-gungame-fof). Has a couple fun commands, also. If I missed some instructions, check CrimsonTautology's link.
 
 ## Requirements
 * [SourceMod](https://www.sourcemod.net/) 1.10 or later
