@@ -1,0 +1,79 @@
+"gungame_weapons"
+{
+	"18"
+	{
+		"weapon_walker"	""
+	}
+	"17"
+	{
+		"weapon_shotgun"	""
+	}
+	"16"
+	{
+		"weapon_sharps"	""
+	}
+	"15"
+	{
+		"weapon_machete"	""
+	}
+	"14"
+	{
+		"weapon_peacemaker"	""
+	}
+	"13"
+	{
+		"weapon_coachgun"	""
+	}
+	"12"
+	{
+		"weapon_henryrifle"	""
+	}
+	"11"
+	{
+		"weapon_schofield"	""
+	}
+	"10"
+	{
+		"weapon_maresleg"	""
+	}
+	"9"
+	{
+		"weapon_carbine"	""
+	}
+	"8"
+	{
+		"weapon_axe"	""
+	}
+	"7"
+	{
+		"weapon_coltnavy"	""
+	}
+	"6"
+	{
+		"weapon_volcanic"	""
+	}
+	"5"
+	{
+		"weapon_bow"	""
+	}
+	"4"
+	{
+		"weapon_deringer"	"weapon_deringer"
+	}
+	"3"
+	{
+		"weapon_sawedoff_shotgun"	""
+	}
+	"2"
+	{
+		"weapon_dynamite"	""
+	}
+	"1"
+	{
+		"weapon_knife"	""
+	}
+	"winner"
+	{
+		"weapon_fists_ghost"	""
+	}
+}
