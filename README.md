@@ -57,7 +57,7 @@ sm plugins list
 ### Useful Things
 
 | Command | Accepts | Values | Description |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 | `fof_sv_weaponmenu` | boolean | 0-1 | Enables showing the weapon menu |
     
  <hr />
