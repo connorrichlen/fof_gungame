@@ -5,7 +5,7 @@
 #include <morecolors>
 #undef REQUIRE_EXTENSIONS
 
-#define PLUGIN_VERSION "2.0.2"
+#define PLUGIN_VERSION "2.1.0"
 #define CHAT_PREFIX "{skyblue}[GG] "
 #define CONSOLE_PREFIX "[GG] "
 //#define DEBUG				true
