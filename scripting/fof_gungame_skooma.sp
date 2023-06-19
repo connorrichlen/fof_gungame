@@ -5,8 +5,8 @@
 #include <morecolors>
 #undef REQUIRE_EXTENSIONS
 
-#define PLUGIN_VERSION "2.1.0"
-#define CHAT_PREFIX "{skyblue}[GG] "
+#define PLUGIN_VERSION "2.1.1"
+#define CHAT_PREFIX "{skyblue}[Gun Game 2.0] "
 #define CONSOLE_PREFIX "[GG] "
 //#define DEBUG				true
 
@@ -14,18 +14,18 @@
 #define IN_FOF_SWITCH (1 << 14)
 #endif
 
-#define SOUND_LEVELUP "music/bounty/bounty_objective_stinger1.mp3"
-#define SOUND_FINAL "music/bounty/bounty_objective_stinger2.mp3"
-#define SOUND_ROUNDWON "music/round_end_stinger.mp3"
-#define SOUND_HUMILIATION "halloween/witch_laugh.wav" //animals/chicken_pain1.wav
-#define SOUND_LOSTLEAD "music/most_wanted_stinger.wav"
-#define SOUND_TAKENLEAD "halloween/ragged_powerup.wav"
-#define SOUND_RAGTIME "athleticrag2.mp3"
-#define SOUND_YEEHAW "player/voice2/howl_yeehaw3.wav"
-#define SOUND_TIEDLEAD "music/kill3.wav"
-#define SOUND_VICTORY "common/victory.mp3"
-#define SOUND_DEFEAT "common/defeat.mp3"
-#define SOUND_STALEMATE "music/standoff1.mp3"
+#define SOUND_LEVELUP       "music/bounty/bounty_objective_stinger1.mp3"
+#define SOUND_FINAL         "music/bounty/bounty_objective_stinger2.mp3"
+#define SOUND_ROUNDWON      "music/round_end_stinger.mp3"
+#define SOUND_HUMILIATION   "halloween/witch_laugh.wav" //animals/chicken_pain1.wav
+#define SOUND_LOSTLEAD      "music/most_wanted_stinger.wav"
+#define SOUND_TAKENLEAD     "halloween/ragged_powerup.wav"
+#define SOUND_RAGTIME       "athleticrag2.mp3"
+#define SOUND_YEEHAW        "player/voice2/howl_yeehaw3.wav"
+#define SOUND_TIEDLEAD      "music/kill3.wav"
+#define SOUND_VICTORY       "common/victory.mp3"
+#define SOUND_DEFEAT        "common/defeat.mp3"
+#define SOUND_STALEMATE     "music/standoff1.mp3"
 
 #define HUD1_X 0.18
 #define HUD1_Y 0.04
@@ -33,57 +33,69 @@
 #define HUD2_X 0.18
 #define HUD2_Y 0.10
 
-new Handle: sm_fof_gg_version = INVALID_HANDLE;
-new Handle: fof_sv_weaponmenu = INVALID_HANDLE;
-new Handle: fof_gungame_enabled = INVALID_HANDLE;
-new Handle: fof_gungame_config = INVALID_HANDLE;
-new Handle: fof_gungame_fists = INVALID_HANDLE;
-//new Handle: fof_gungame_fists_spooky = INVALID_HANDLE;
-new Handle: fof_gungame_whiskeyjug = INVALID_HANDLE;
+#define HUD3_X 0.01 //skooma shoothouse
+#define HUD3_Y 0.00
 
-new Handle: fof_gungame_equip_delay = INVALID_HANDLE;
-new Handle: fof_gungame_heal = INVALID_HANDLE;
-new Handle: fof_gungame_whiskey = INVALID_HANDLE;
-new Handle: fof_gungame_drunkness = INVALID_HANDLE;
-new Handle: fof_gungame_suicides = INVALID_HANDLE;
-new Handle: fof_gungame_logfile = INVALID_HANDLE;
+#define HUD4_X 0.99 //skooma.us
+#define HUD4_Y 0.99
+
+// cvar handles
+new Handle: sm_fof_gg_base_version = INVALID_HANDLE;
+new Handle: fof_sv_weaponmenu = INVALID_HANDLE;
+new Handle: fof_gg_weaponmenu = INVALID_HANDLE;
+new Handle: fof_gg_enabled = INVALID_HANDLE;
+new Handle: fof_gg_config = INVALID_HANDLE;
+new Handle: fof_gg_fists = INVALID_HANDLE;
+new Handle: fof_gg_equip_delay = INVALID_HANDLE;
+new Handle: fof_gg_heal = INVALID_HANDLE;
+new Handle: fof_gg_whiskey = INVALID_HANDLE;
+new Handle: fof_gg_drunkness = INVALID_HANDLE;
+new Handle: fof_gg_suicides = INVALID_HANDLE;
+new Handle: fof_gg_logfile = INVALID_HANDLE;
 new Handle: fof_sv_dm_timer_ends_map = INVALID_HANDLE;
 new Handle: mp_bonusroundtime = INVALID_HANDLE;
+//new Handle: fof_gg_fists_spooky = INVALID_HANDLE;
 
-new bool: bAllowFists = false;
-//new bool: bAllowSpookyFists = false;
-new bool: bAllowWhiskeyJug = false;
-new Float: flEquipDelay = 0.0;
-new nHealAmount = 25;
-new bRemoveWhiskey = true;
-//new bEnableWeaponsMenu = false;
-new Float: flDrunkness = 2.5;
-new bool: bSuicides = false;
+// Strings
 new String: szLogFile[PLATFORM_MAX_PATH];
-new Float: flBonusRoundTime = 5.0;
-
-new bool: bLateLoaded = false;
-new Handle: hHUDSync1 = INVALID_HANDLE;
-new Handle: hHUDSync2 = INVALID_HANDLE;
-new Handle: hWeapons = INVALID_HANDLE;
-new iAmmoOffset = -1;
-new iWinner = 0;
+new String: szLastWeaponFired[MAXPLAYERS + 1][32];
 new String: szWinner[MAX_NAME_LENGTH];
-new iLeader = 0;
-new iMaxLevel = 1;
-
-new iPlayerLevel[MAXPLAYERS + 1];
+new String: szLeader[MAX_NAME_LENGTH];
+// Booleans
+new bool: bSuicides = false;
+new bool: bAllowFists = false;
+new bool: bAllowWeaponMenu = true;
+new bool: bLateLoaded = false;
+new bool: bSpawnWhiskey = true;
 new bool: bUpdateEquipment[MAXPLAYERS + 1];
+new bool: bWasInGame[MAXPLAYERS + 1];
+new bool: bFirstEquip[MAXPLAYERS + 1];
+new bool: bFirstSpawn[MAXPLAYERS + 1];
+new bool: bInTheLead[MAXPLAYERS + 1];
+new bool: bWasInTheLead[MAXPLAYERS + 1];
+//new bool: bAllowSpookyFists = false;
+// Floats
+new Float: flBonusRoundTime = 5.0;
+new Float: flDrunkness = 2.5;
+new Float: flEquipDelay = 0.0;
 new Float: flLastKill[MAXPLAYERS + 1];
 new Float: flLastLevelUP[MAXPLAYERS + 1];
 new Float: flLastUse[MAXPLAYERS + 1];
-new bool: bWasInGame[MAXPLAYERS + 1];
-new String: szLastWeaponFired[MAXPLAYERS + 1][32];
-new bool: bFirstEquip[MAXPLAYERS + 1];
-new bool: bFirstSpawn[MAXPLAYERS + 1];
 new Float: flStart[MAXPLAYERS + 1];
-new bool: bInTheLead[MAXPLAYERS + 1];
-new bool: bWasInTheLead[MAXPLAYERS + 1];
+// Handles
+new Handle: hHUDSync1 = INVALID_HANDLE;
+new Handle: hHUDSync2 = INVALID_HANDLE;
+new Handle: hHUDSync3 = INVALID_HANDLE;
+new Handle: hHUDSync4 = INVALID_HANDLE;
+new Handle: hWeapons = INVALID_HANDLE;
+// Integers
+new iAmmoOffset = -1;
+new iWinner = 0;
+new iLeader = 0;
+new iMaxLevel = 1;
+new iPlayerLevel[MAXPLAYERS + 1];
+new iHealAmount = 25;
+//new bEnableWeaponsMenu = false;
 
 new Handle: g_Timer_GiveWeapon1[MAXPLAYERS + 1] = {
     INVALID_HANDLE,
@@ -95,9 +107,9 @@ new Handle: g_Timer_GiveWeapon2[MAXPLAYERS + 1] = {
 };
 
 public Plugin: myinfo = {
-    name = "[FOF] Gun Game",
-    author = "Redux by Skooma - Original plugin by Xpenia Team",
-    description = "Fistful of Frags Gun Game",
+    name = "[FOF] Gun Game - Base",
+    author = "Skooma",
+    description = "[FOF] Gun Game 2.0",
     version = PLUGIN_VERSION,
     url = "https://connorrichlen.me"
 };
@@ -108,23 +120,24 @@ public APLRes: AskPluginLoad2(Handle: hPlugin, bool: bLateLoad, String: szError[
 }
 
 public OnPluginStart() {
-    sm_fof_gg_version = CreateConVar("sm_fof_gg_version", PLUGIN_VERSION, "FoF Gun Game Plugin Version", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD);
-    SetConVarString(sm_fof_gg_version, PLUGIN_VERSION);
-    HookConVarChange(sm_fof_gg_version, OnVerConVarChanged);
+    sm_fof_gg_base_version = CreateConVar("sm_fof_gg_base_version", PLUGIN_VERSION, "[FOF] Gun Game 2.0 - Base Plugin Version", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD);
+    SetConVarString(sm_fof_gg_base_version, PLUGIN_VERSION);
+    HookConVarChange(sm_fof_gg_base_version, OnVerConVarChanged);
     HookConVarChange(fof_sv_weaponmenu = FindConVar("fof_sv_weaponmenu"), OnConVarChanged);
-    fof_gungame_enabled = CreateConVar("fof_gungame_enabled", "1", _, FCVAR_NOTIFY, true, 0.0, true, 1.0);
-    HookConVarChange(fof_gungame_config = CreateConVar("fof_gungame_config", "gungame_weapons.txt", _, 0), OnCfgConVarChanged);
-    HookConVarChange(fof_gungame_fists = CreateConVar("fof_gungame_fists", "1", "Allow (1) or disallow fists.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
-    //HookConVarChange(fof_gungame_fists_spooky = CreateConVar("fof_gungame_fists_spooky", "1", "Allow (1) or disallow fists.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
-    HookConVarChange(fof_gungame_whiskeyjug = CreateConVar("fof_gungame_whiskeyjug", "1", "Allow (1) or disallow the whiskey jug.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
-    HookConVarChange(fof_gungame_equip_delay = CreateConVar("fof_gungame_equip_delay", "0.0", "Seconds before giving new equipment.", FCVAR_NOTIFY, true, 0.0), OnConVarChanged);
-    HookConVarChange(fof_gungame_heal = CreateConVar("fof_gungame_heal", "25", "Amount of health to restore on each kill.", FCVAR_NOTIFY, true, 0.0), OnConVarChanged);
-    HookConVarChange(fof_gungame_whiskey = CreateConVar("fof_gungame_whiskey", "1", "Remove whiskey map entities (yes = 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
-    HookConVarChange(fof_gungame_drunkness = CreateConVar("fof_gungame_drunkness", "6.0", _, FCVAR_NOTIFY), OnConVarChanged);
-    HookConVarChange(fof_gungame_suicides = CreateConVar("fof_gungame_suicides", "1", "Set 1 to allow suicides and level down for it.", FCVAR_NOTIFY), OnConVarChanged);
-    HookConVarChange(fof_gungame_logfile = CreateConVar("fof_gungame_logfile", "gg_log.txt", _, 0), OnConVarChanged);
+    HookConVarChange(fof_gg_weaponmenu = CreateConVar("fof_gg_weaponmenu", "1", "Allow (1) or disallow the weapon menu to show during the game. Changing this value mid-game will not apply the setting.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
+    fof_gg_enabled = CreateConVar("fof_gg_enabled", "1", _, FCVAR_NOTIFY, true, 0.0, true, 1.0);
+    HookConVarChange(fof_gg_config = CreateConVar("fof_gg_config", "gungame_weapons.txt", _, 0), OnCfgConVarChanged);
+    HookConVarChange(fof_gg_fists = CreateConVar("fof_gg_fists", "1", "Allow (1) or disallow fists.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
+    //HookConVarChange(fof_gg_fists_spooky = CreateConVar("fof_gg_fists_spooky", "1", "Allow (1) or disallow fists.", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
+    HookConVarChange(fof_gg_equip_delay = CreateConVar("fof_gg_equip_delay", "0.0", "Seconds before giving new equipment.", FCVAR_NOTIFY, true, 0.0), OnConVarChanged);
+    HookConVarChange(fof_gg_heal = CreateConVar("fof_gg_heal", "25", "Amount of health to restore on each kill.", FCVAR_NOTIFY, true, 0.0), OnConVarChanged);
+    HookConVarChange(fof_gg_whiskey = CreateConVar("fof_gg_whiskey", "1", "Spawn whiskey map entities on map load", FCVAR_NOTIFY, true, 0.0, true, 1.0), OnConVarChanged);
+    HookConVarChange(fof_gg_drunkness = CreateConVar("fof_gg_drunkness", "6.0", _, FCVAR_NOTIFY), OnConVarChanged);
+    HookConVarChange(fof_gg_suicides = CreateConVar("fof_gg_suicides", "0", "Set 1 to allow suicides", FCVAR_NOTIFY), OnConVarChanged);
+    HookConVarChange(fof_gg_logfile = CreateConVar("fof_gg_logfile", "gg_log.txt", _, 0), OnConVarChanged);
     fof_sv_dm_timer_ends_map = FindConVar("fof_sv_dm_timer_ends_map");
     HookConVarChange(mp_bonusroundtime = FindConVar("mp_bonusroundtime"), OnConVarChanged);
+
     HookEvent("player_activate", Event_PlayerActivate);
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("player_shoot", Event_PlayerShoot);
@@ -133,18 +146,22 @@ public OnPluginStart() {
 
     RegServerCmd("sm_stopmusic", Command_StopMusic);
 
-    RegAdminCmd("fof_gungame_restart", Command_RestartRound, ADMFLAG_GENERIC);
-    RegAdminCmd("fof_gungame_music", Command_MakeRagTime, ADMFLAG_GENERIC);
-    RegAdminCmd("fof_gungame_reload_cfg", Command_ReloadConfigFile, ADMFLAG_CONFIG);
-    RegAdminCmd("fof_gungame_scores", Command_DumpScores, ADMFLAG_ROOT, "[DEBUG] List player score values");
+    RegAdminCmd("fof_gg_restart", Command_RestartRound, ADMFLAG_GENERIC);
+    RegAdminCmd("fof_gg_music", Command_MakeRagTime, ADMFLAG_GENERIC);
+    RegAdminCmd("fof_gg_reload_cfg", Command_ReloadConfigFile, ADMFLAG_CONFIG);
+    RegAdminCmd("fof_gg_scores", Command_DumpScores, ADMFLAG_ROOT, "[DEBUG] List player score values");
     AddCommandListener(Command_item_dm_end, "item_dm_end");
     AutoExecConfig();
     hHUDSync1 = CreateHudSynchronizer();
     hHUDSync2 = CreateHudSynchronizer();
+    hHUDSync3 = CreateHudSynchronizer();
+    hHUDSync4 = CreateHudSynchronizer();
 
     iAmmoOffset = FindSendPropInfo("CFoF_Player", "m_iAmmo");
 
     hWeapons = CreateKeyValues("gungame_weapons");
+
+
 
     if (bLateLoaded) {
         for (new i = 1; i <= MaxClients; i++)
@@ -154,22 +171,22 @@ public OnPluginStart() {
             }
         RestartTheGame();
     }
+
+
 }
 
 public OnPluginEnd() {
     AllowMapEnd(true);
-    //SetGameDescription( "Gun Game", false );
 }
 
 public OnClientDisconnect_Post(iClient) {
-    //if( iWinner == iClient ) iWinner = 0;
-
     new timeleft;
     if (GetMapTimeLeft(timeleft) && timeleft > 0 && iWinner <= 0)
         LeaderCheck();
 
     iPlayerLevel[iClient] = 0;
 }
+
 
 RemoveCrates() {
     new entcrate = INVALID_ENT_REFERENCE;
@@ -185,26 +202,19 @@ RemoveWhiskey() {
     }
 }
 
-/*RemoveDroppedWeps() {
-    new entwep = INVALID_ENT_REFERENCE;
-    while ((entwep = FindEntityByClassname(entwep, "weapon_*")) != INVALID_ENT_REFERENCE) {
-        AcceptEntityInput(entwep, "Kill");
-    }
-}*/ 
-
-//fof does not do this correctly
-
 public OnMapStart() {
-    ServerCommand("exec server");
-    SetConVarBool(fof_sv_weaponmenu, false, true, true);
+    SetConVarBool(fof_sv_weaponmenu, bAllowWeaponMenu, true, true);
     new Handle:mp_teamplay = FindConVar( "mp_teamplay" );
     new Handle:fof_sv_currentmode = FindConVar( "fof_sv_currentmode" );
-    if( mp_teamplay != INVALID_HANDLE && fof_sv_currentmode != INVALID_HANDLE ){
+
+    if( mp_teamplay != INVALID_HANDLE && fof_sv_currentmode != INVALID_HANDLE && fof_gg_enabled ){
     } else {
         SetFailState( "Missing mp_teamplay or/and fof_sv_currentmode console variable" );
     }
+
     iWinner = 0;
     szWinner[0] = '\0';
+    szLeader[0] = '\0';
     iLeader = 0;
     iMaxLevel = 1;
     for (new i = 0; i < sizeof(iPlayerLevel); i++) {
@@ -216,11 +226,13 @@ public OnMapStart() {
         bWasInTheLead[i] = false;
         bInTheLead[i] = false;
     }
+
     RemoveCrates();
 
-    if (bRemoveWhiskey) {
+    if (!bSpawnWhiskey) {
         RemoveWhiskey();
     }
+
     PrecacheSound(SOUND_LEVELUP, true);
     PrecacheSound(SOUND_FINAL, true);
     PrecacheSound(SOUND_ROUNDWON, true);
@@ -233,14 +245,6 @@ public OnMapStart() {
     PrecacheSound(SOUND_VICTORY, true);
     PrecacheSound(SOUND_DEFEAT, true);
     PrecacheSound(SOUND_STALEMATE, true);
-    /*
-
-    for(new i=0; i < sizeof(g_RoundStartSounds); i++)
-    {
-        PrecacheSound(g_RoundStartSounds[i]);
-    }
-
-    */
 
     AutoExecConfig();
 
@@ -248,6 +252,7 @@ public OnMapStart() {
 
     SDKHook(GetPlayerResourceEntity(), SDKHook_ThinkPost, Hook_OnPlayerResourceThinkPost);
 }
+
 
 public OnConfigsExecuted() {
     AllowMapEnd(false);
@@ -258,18 +263,18 @@ public OnClientConnected() {
     AutoExecConfig();
     ReloadConfigFile();
 }
+
 stock ScanConVars() {
-    bAllowFists = GetConVarBool(fof_gungame_fists);
-    //bAllowSpookyFists = GetConVarBool(fof_gungame_fists_spooky);
-    bAllowWhiskeyJug = GetConVarBool(fof_gungame_whiskeyjug);
-    flEquipDelay = FloatMax(0.0, GetConVarFloat(fof_gungame_equip_delay));
-    nHealAmount = Int32Max(0, GetConVarInt(fof_gungame_heal));
-    bRemoveWhiskey = GetConVarBool(fof_gungame_whiskey);
-    flDrunkness = GetConVarFloat(fof_gungame_drunkness);
-    bSuicides = GetConVarBool(fof_gungame_suicides);
-    GetConVarString(fof_gungame_logfile, szLogFile, sizeof(szLogFile));
+    bAllowFists = GetConVarBool(fof_gg_fists);
+    bAllowWeaponMenu = GetConVarBool(fof_gg_weaponmenu);
+    //bAllowSpookyFists = GetConVarBool(fof_gg_fists_spooky);
+    flEquipDelay = FloatMax(0.0, GetConVarFloat(fof_gg_equip_delay));
+    iHealAmount = Int32Max(0, GetConVarInt(fof_gg_heal));
+    bSpawnWhiskey = GetConVarBool(fof_gg_whiskey);
+    flDrunkness = GetConVarFloat(fof_gg_drunkness);
+    bSuicides = GetConVarBool(fof_gg_suicides);
+    GetConVarString(fof_gg_logfile, szLogFile, sizeof(szLogFile));
     flBonusRoundTime = FloatMax(0.0, GetConVarFloat(mp_bonusroundtime));
-    //bEnableWeaponsMenu = GetConVarBool(fof_sv_weaponmenu);
 
 }
 
@@ -277,7 +282,7 @@ stock ReloadConfigFile() {
     iMaxLevel = 1;
 
     new String: szConfigPath[PLATFORM_MAX_PATH], String: szNextLevel[16];
-    GetConVarString(fof_gungame_config, szConfigPath, sizeof(szConfigPath));
+    GetConVarString(fof_gg_config, szConfigPath, sizeof(szConfigPath));
     BuildPath(Path_SM, szConfigPath, sizeof(szConfigPath), "configs/%s", szConfigPath);
     IntToString(iMaxLevel, szNextLevel, sizeof(szNextLevel));
 
@@ -310,21 +315,19 @@ stock ReloadConfigFile() {
         PrintToServer("%sFalied to parse the config file.", CONSOLE_PREFIX);
 }
 
-public OnConVarChanged(Handle: hConVar,
-    const String: szOldValue[],
-        const String: szNewValue[])
-ScanConVars();
+public OnConVarChanged(Handle: hConVar, const String: szOldValue[], const String: szNewValue[]) {
+    ScanConVars();
+}
 
-public OnCfgConVarChanged(Handle: hConVar,
-    const String: szOldValue[],
-        const String: szNewValue[])
-ReloadConfigFile();
+public OnCfgConVarChanged(Handle: hConVar, const String: szOldValue[], const String: szNewValue[]) {
+    ReloadConfigFile();
+}
 
-public OnVerConVarChanged(Handle: hConVar,
-    const String: szOldValue[],
-        const String: szNewValue[])
-if (strcmp(szNewValue, PLUGIN_VERSION, false))
-    SetConVarString(hConVar, PLUGIN_VERSION, true, true);
+public OnVerConVarChanged(Handle: hConVar, const String: szOldValue[], const String: szNewValue[]){
+    if (strcmp(szNewValue, PLUGIN_VERSION, false))
+        SetConVarString(hConVar, PLUGIN_VERSION, true, true);
+}
+
 
 public Action: Command_RestartRound(iClient, nArgs) {
     RestartTheGame();
@@ -337,10 +340,10 @@ public Action: Command_MakeRagTime(iClient, nArgs) {
 }
 
 public Action: Command_StopMusic(iClient) {
-    //FakeClientCommand(iClient, "snd_restart");
     StopSound(iClient, SNDCHAN_AUTO, "athleticrag2.mp3");
     return Plugin_Handled;
 }
+
 
 public Action: Command_ReloadConfigFile(iClient, nArgs) {
     ReloadConfigFile();
@@ -348,8 +351,7 @@ public Action: Command_ReloadConfigFile(iClient, nArgs) {
     return Plugin_Handled;
 }
 
-public Action: Command_item_dm_end(iClient,
-    const String: szCommand[], nArgs) {
+public Action: Command_item_dm_end(iClient, const String: szCommand[], nArgs) {
     if (bFirstEquip[iClient]) {
         bFirstEquip[iClient] = false;
         CreateTimer(0.0, Timer_UpdateEquipment, GetClientUserId(iClient), TIMER_FLAG_NO_MAPCHANGE);
@@ -357,8 +359,7 @@ public Action: Command_item_dm_end(iClient,
     return Plugin_Continue;
 }
 
-public Event_PlayerActivate(Handle: hEvent,
-    const String: szEventName[], bool: bDontBroadcast) {
+public Event_PlayerActivate(Handle: hEvent, const String: szEventName[], bool: bDontBroadcast) {
     new iClient = GetClientOfUserId(GetEventInt(hEvent, "userid"));
     if (0 < iClient <= MaxClients) {
         iPlayerLevel[iClient] = 1;
@@ -375,8 +376,7 @@ public Event_PlayerActivate(Handle: hEvent,
     }
 }
 
-public Event_PlayerSpawn(Handle: hEvent,
-    const String: szEventName[], bool: bDontBroadcast) {
+public Event_PlayerSpawn(Handle: hEvent, const String: szEventName[], bool: bDontBroadcast) {
     new iUserID = GetEventInt(hEvent, "userid");
     new iClient = GetClientOfUserId(iUserID);
 
@@ -389,8 +389,7 @@ public Event_PlayerSpawn(Handle: hEvent,
     CreateTimer(0.1, Timer_UpdateEquipment, iUserID, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Event_PlayerShoot(Handle: hEvent,
-    const String: szEventName[], bool: bDontBroadcast) {
+public Event_PlayerShoot(Handle: hEvent, const String: szEventName[], bool: bDontBroadcast) {
     new iClient = GetClientOfUserId(GetEventInt(hEvent, "userid"));
     if (0 <= iClient < MaxClients) {
         GetEventString(hEvent, "weapon", szLastWeaponFired[iClient], sizeof(szLastWeaponFired[]));
@@ -398,18 +397,22 @@ public Event_PlayerShoot(Handle: hEvent,
     }
 }
 
-public Event_PlayerDeath(Handle: hEvent,
-    const String: szEventName[], bool: bDontBroadcast) {
-    new iVictim = GetClientOfUserId(GetEventInt(hEvent, "userid"));
+public Event_PlayerDeath(Handle: hEvent, const String: szEventName[], bool: bDontBroadcast) {
+    new iVictimUID = GetEventInt(hEvent, "userid");
+    new iVictim = GetClientOfUserId(iVictimUID);
     new iKillerUID = GetEventInt(hEvent, "attacker");
     new iKiller = GetClientOfUserId(iKillerUID);
     new iDmgBits = GetClientOfUserId(GetEventInt(hEvent, "damagebits"));
+
+    new String:fistswep[32];
+    GetEventString(hEvent, "weapon", fistswep, sizeof(fistswep));
 
     //fix gold crates spawning on deaths
     RemoveCrates();
     /*
     fix weapon drop on death bc FOF clearly wont do it
-	RemoveDroppedWeps();
+    // jk FoF doesn't like to do this
+    RemoveDroppedWeps();
     */
 
     if (iDmgBits & DMG_FALL)
@@ -421,10 +424,21 @@ public Event_PlayerDeath(Handle: hEvent,
         return;
     }
 
-    if (iVictim == iKiller || iKiller == 0 && GetEventInt(hEvent, "assist") <= 0) {
-        if (!bSuicides && iPlayerLevel[iKiller] > 1) {
+    if (iVictimUID == iKillerUID || iKiller == 0 || (iVictimUID == iKillerUID && StrEqual(fistswep, "dynamite"))) { // && GetEventInt(hEvent, "assist") <= 0
+        if (!bSuicides && iPlayerLevel[iVictim] > 1) {
             iPlayerLevel[iVictim]--;
-            LeaderCheck();
+            LeaderCheck(); 
+            PrintCenterText(iVictim, "Ungraceful death! You are now level %d of %d.", iPlayerLevel[iVictim], iMaxLevel);
+            CPrintToChat(iVictim, "%s{red}Ungraceful death! {gold}You are now level %d of %d.", CHAT_PREFIX, iPlayerLevel[iVictim], iMaxLevel);
+            EmitSoundToClient(iVictim, SOUND_HUMILIATION);
+        }
+        return;
+    }
+
+    if (iVictimUID == iKillerUID || iKiller == 0) { // && GetEventInt(hEvent, "assist") <= 0
+        if (!bSuicides && iPlayerLevel[iVictim] > 1) {
+            iPlayerLevel[iVictim]--;
+            LeaderCheck(); 
             PrintCenterText(iVictim, "Ungraceful death! You are now level %d of %d.", iPlayerLevel[iVictim], iMaxLevel);
             CPrintToChat(iVictim, "%s{red}Ungraceful death! {gold}You are now level %d of %d.", CHAT_PREFIX, iPlayerLevel[iVictim], iMaxLevel);
             EmitSoundToClient(iVictim, SOUND_HUMILIATION);
@@ -443,8 +457,8 @@ public Event_PlayerDeath(Handle: hEvent,
     new String: szWeapon[32];
     GetEventString(hEvent, "weapon", szWeapon, sizeof(szWeapon));
 
-    //Humiliate victim on fists kill, and kick kill by lowering their level
-    if ((StrEqual(szWeapon, "fists")) && iPlayerLevel[iVictim] > 1 && 0 < iKiller <= MaxClients) {
+    //Humiliate victim on fists & brass knuckles kill by lowering their level
+    if ((StrEqual(szWeapon, "fists") || StrEqual(szWeapon, "fists_brass")) && iPlayerLevel[iVictim] > 1 && 0 < iKiller <= MaxClients) {
         iPlayerLevel[iVictim]--;
         LeaderCheck();
 
@@ -465,7 +479,9 @@ public Event_PlayerDeath(Handle: hEvent,
     }
 
     if (StrEqual(szWeapon, "arrow"))
-        strcopy(szWeapon, sizeof(szWeapon), "weapon_bow") || strcopy(szWeapon, sizeof(szWeapon), "weapon_bow_black");
+        strcopy(szWeapon, sizeof(szWeapon), "weapon_bow");
+    else if (StrEqual(szWeapon, "arrow_black"))
+        strcopy(szWeapon, sizeof(szWeapon), "weapon_bow_black");
     else if (StrEqual(szWeapon, "x_arrow"))
         strcopy(szWeapon, sizeof(szWeapon), "weapon_xbow");
     else if (StrEqual(szWeapon, "thrown_axe"))
@@ -553,8 +569,8 @@ public Event_PlayerDeath(Handle: hEvent,
     }
 
     if (IsPlayerAlive(iKiller)) {
-        if (nHealAmount != 0)
-            SetEntityHealth(iKiller, GetClientHealth(iKiller) + nHealAmount);
+        if (iHealAmount != 0)
+            SetEntityHealth(iKiller, GetClientHealth(iKiller) + iHealAmount);
         CreateTimer(0.01, Timer_GetDrunk, iKillerUID, TIMER_FLAG_NO_MAPCHANGE);
     }
     CreateTimer(0.0, Timer_UpdateEquipment, iKillerUID, TIMER_FLAG_NO_MAPCHANGE);
@@ -566,13 +582,12 @@ public Action: Timer_GetDrunk(Handle: hTimer, any: iUserID) {
     return Plugin_Stop;
 }
 
-public Event_RoundStart(Event: event,
-    const String: name[], bool: dontBroadcast) {
+public Event_RoundStart(Event: event, const String: name[], bool: dontBroadcast) {
     RemoveCrates();
-    if (bRemoveWhiskey != 0) {
+    if (!bSpawnWhiskey) {
         RemoveWhiskey();
     }
-    ServerCommand("exec server");
+    PrintToConsoleAll("Thank you to Xpenia Team & CrimsonTautology -Skooma");
     //Clear scores
     iWinner = 0;
     szWinner[0] = '\0';
@@ -622,10 +637,8 @@ public Hook_WeaponSwitchPost(iClient, iWeapon) {
                 PushArrayString(hAllowedWeapons, "weapon_fists");
             //}
         }
-        if (bAllowWhiskeyJug) {
-            WriteLog("Hook_WeaponSwitchPost(%d): adding weapon_whiskey", iClient);
-            PushArrayString(hAllowedWeapons, "weapon_whiskey");
-        }
+        WriteLog("Hook_WeaponSwitchPost(%d): adding weapon_whiskey", iClient);
+        PushArrayString(hAllowedWeapons, "weapon_whiskey");
         if (iWinner <= 0) {
             KvRewind(hWeapons);
             if (KvJumpToKey(hWeapons, szPlayerLevel, false) && KvGotoFirstSubKey(hWeapons, false)) {
@@ -682,6 +695,7 @@ public Hook_OnPlayerResourceThinkPost(ent) {
         if (!IsClientInGame(client)) continue;
 
         level = Int32Max(iPlayerLevel[client], 0);
+        //score = GetEntProp(client, Prop_Send, "m_nPlayerKills");
         score = GetEntProp(client, Prop_Send, "m_nLastRoundNotoriety");
         SetEntProp(ent, Prop_Send, "m_iExp", level, _, client);
         SetEntProp(ent, Prop_Send, "m_iScore", score, _, client);
@@ -690,30 +704,14 @@ public Hook_OnPlayerResourceThinkPost(ent) {
 
 }
 
-public Action: Timer_RespawnAnnounce(Handle: hTimer, any: iUserID) {
-    CreateTimer(flBonusRoundTime, Timer_RespawnPlayers, .flags = TIMER_FLAG_NO_MAPCHANGE);
-    CreateTimer(FloatMax(0.0, (flBonusRoundTime - 1.0)), Timer_AllowMapEnd, .flags = TIMER_FLAG_NO_MAPCHANGE);
-    new timeleft = GetMapTimeLeft(timeleft);
-    if (timeleft <= RoundToCeil(flBonusRoundTime)) {
-        CPrintToChatAll("%s{gold}Time's up & game over! Changing map in {darkorange}%d{gold} seconds...", CHAT_PREFIX, RoundToCeil(flBonusRoundTime));
-        PrintCenterTextAll("Time's up & game over! Changing map in %d seconds...", RoundToCeil(flBonusRoundTime));
-        PrintToConsoleAll("Debug: timeleft: %s", timeleft);
-        AllowMapEnd(true);
-        return Plugin_Stop;
-    } /*else {
-        CPrintToChatAll("%s{gold}Round over! Changing the map in %d seconds...", CHAT_PREFIX, RoundToCeil(flBonusRoundTime));
-        PrintCenterTextAll("Round over! Changing the map in %d seconds...", RoundToCeil(flBonusRoundTime));
-        return Plugin_Stop;
-    }*/
-    else
-    {
+public Action:Timer_RespawnAnnounce( Handle:hTimer, any:iUserID )
+{
+    CreateTimer( flBonusRoundTime, Timer_RespawnPlayers, .flags = TIMER_FLAG_NO_MAPCHANGE );
+    CreateTimer( FloatMax( 0.0, ( flBonusRoundTime - 1.0 ) ), Timer_AllowMapEnd, .flags = TIMER_FLAG_NO_MAPCHANGE );
+    if( flBonusRoundTime >= 1.0 ) {
         CPrintToChatAll( "%s{gold}Starting new round in {darkorange}%d{gold} seconds...", CHAT_PREFIX, RoundToCeil(flBonusRoundTime));
-        return Plugin_Continue;
     }
-    /*  if( flBonusRoundTime >= 1.0 )
-			CPrintToChatAll( "%s{gold}Starting new round in {darkorange}%d{gold} seconds...", CHAT_PREFIX, RoundToCeil( flBonusRoundTime ) );
-*/
-
+    return Plugin_Stop;
 }
 
 public Action: Timer_AllowMapEnd(Handle: hTimer, any: iUserID) {
@@ -792,8 +790,13 @@ public Action: Timer_UpdateEquipment(Handle: hTimer, any: iUserID) {
 
     bUpdateEquipment[iClient] = false;
 
-    if (iWinner == iClient)
+    if (iWinner == iClient){
         SetEntityHealth(iClient, 500);
+        SetEntityRenderMode( iClient, RENDER_GLOW );
+        SetEntityRenderColor(iClient, 255, 0, 0, 255);
+        UseWeapon(iClient, "weapon_fists_ghost");
+        StripWeapons(iClient);
+    }
     else {
         UseWeapon(iClient, "weapon_fists");
         StripWeapons(iClient);
@@ -909,8 +912,9 @@ public Action: Timer_UpdateHUD(Handle: hTimer, any: iUnused) {
     new iTopLevel = 0, iClients[MaxClients + 1], nClients = 0;
     if (iWinner <= 0) {
         for (new i = 1; i <= MaxClients; i++)
-            if (IsClientInGame(i) && iPlayerLevel[i] > iTopLevel)
+            if (IsClientInGame(i) && iPlayerLevel[i] > iTopLevel){
                 iTopLevel = iPlayerLevel[i];
+            }
 
         for (new i = 1; i <= MaxClients; i++)
             if (IsClientInGame(i) && iPlayerLevel[i] >= iTopLevel && GetClientTeam(i) != 1)
@@ -921,7 +925,12 @@ public Action: Timer_UpdateHUD(Handle: hTimer, any: iUnused) {
         if (IsClientInGame(i)) {
             ClearSyncHud(i, hHUDSync1);
             ClearSyncHud(i, hHUDSync2);
-
+            ClearSyncHud(i, hHUDSync3);
+            ClearSyncHud(i, hHUDSync4);
+            SetHudTextParams(HUD3_X, HUD3_Y, 1.125, 255, 0, 0, 0, 0, 0.0, 0.0, 0.0);
+            _ShowHudText(i, hHUDSync3, "Skooma's Shoothouse");
+            SetHudTextParams(HUD4_X, HUD4_Y, 1.125, 255, 255, 255, 0, 0, 0.0, 0.0, 0.0);
+            _ShowHudText(i, hHUDSync4, "skooma.us");
             if (iWinner > 0) {
                 if (nClients == iWinner) {
                     SetHudTextParams(HUD1_X, HUD1_Y, 1.125, 0, 255, 0, 180, 0, 0.0, 0.0, 0.0);
@@ -929,8 +938,6 @@ public Action: Timer_UpdateHUD(Handle: hTimer, any: iUnused) {
                 } else {
                     SetHudTextParams(HUD1_X, HUD1_Y, 1.125, 220, 220, 0, 180, 0, 0.0, 0.0, 0.0);
                     _ShowHudText(i, hHUDSync1, "WINNER:");
-
-                    ServerCommand("sm_tsay 'WINNER: %s'", szWinner);
 
                     SetHudTextParams(HUD2_X, HUD2_Y, 1.125, 220, 220, 0, 180, 0, 0.0, 0.0, 0.0);
                     _ShowHudText(i, hHUDSync1, "%s", szWinner);
@@ -973,55 +980,53 @@ public Action: Timer_UpdateHUD(Handle: hTimer, any: iUnused) {
 public Action: Timer_Announce(Handle: hTimer, any: iUserID) {
     new iClient = GetClientOfUserId(iUserID);
     if (0 < iClient <= MaxClients && IsClientInGame(iClient))
-        CPrintToChat(iClient, "{red}WARNING: {gold}This is an unofficial game mode under development - You will encounter bugs.");
+        CPrintToChat(iClient, "{red}WARNING: {gold}This is an unofficial game mode under development - You may encounter bugs.");
     return Plugin_Stop;
 }
 
-stock _ShowHudText(iClient, Handle: hHudSynchronizer = INVALID_HANDLE,
-    const String: szFormat[], any: ...)
-if (0 < iClient <= MaxClients && IsClientInGame(iClient)) {
-    //WriteLog( "_ShowHudText(%d): %L", iClient, iClient );
+stock _ShowHudText(iClient, Handle: hHudSynchronizer = INVALID_HANDLE, const String: szFormat[], any: ...)
+    if (0 < iClient <= MaxClients && IsClientInGame(iClient)) {
+        //WriteLog( "_ShowHudText(%d): %L", iClient, iClient );
 
-    new String: szBuffer[250];
-    VFormat(szBuffer, sizeof(szBuffer), szFormat, 4);
+        new String: szBuffer[250];
+        VFormat(szBuffer, sizeof(szBuffer), szFormat, 4);
 
-    if (ShowHudText(iClient, -1, szBuffer) < 0 && hHudSynchronizer != INVALID_HANDLE) {
-        //WriteLog( "_ShowHudText(%d): ShowSyncHudText( %d, %08X, '%s' )", iClient, iClient, hHudSynchronizer, szBuffer );
-        ShowSyncHudText(iClient, hHudSynchronizer, szBuffer);
-    }
+        if (ShowHudText(iClient, -1, szBuffer) < 0 && hHudSynchronizer != INVALID_HANDLE) {
+            //WriteLog( "_ShowHudText(%d): ShowSyncHudText( %d, %08X, '%s' )", iClient, iClient, hHudSynchronizer, szBuffer );
+            ShowSyncHudText(iClient, hHudSynchronizer, szBuffer);
+        }
 
-    //WriteLog( "_ShowHudText(%d): end", iClient );
+        //WriteLog( "_ShowHudText(%d): end", iClient );
 }
 
-stock UseWeapon(iClient,
-    const String: szItem[])
-if (0 < iClient <= MaxClients && IsClientInGame(iClient)) {
-    WriteLog("UseWeapon(%d): %L", iClient, iClient);
-    if (IsPlayerAlive(iClient)) {
-        new Float: flCurTime = GetGameTime();
-        if ((flCurTime - flLastUse[iClient]) >= 0.1) {
-            new bool: bFound = false;
-            for (new iWeapon, String: szClassname[32], s = 0; s < 48; s++)
-                if (IsValidEdict((iWeapon = GetEntPropEnt(iClient, Prop_Send, "m_hMyWeapons", s)))) {
-                    GetEntityClassname(iWeapon, szClassname, sizeof(szClassname));
-                    //if( szClassname[strlen(szClassname)-1] == '2' )
-                    //	szClassname[strlen(szClassname)-1] = '\0';
-                    if (StrEqual(szClassname, szItem)) {
-                        //EquipPlayerWeapon( iClient, iWeapon );
-                        bFound = true;
-                        break;
+stock UseWeapon(iClient, const String: szItem[])
+    if (0 < iClient <= MaxClients && IsClientInGame(iClient)) {
+        WriteLog("UseWeapon(%d): %L", iClient, iClient);
+        if (IsPlayerAlive(iClient)) {
+            new Float: flCurTime = GetGameTime();
+            if ((flCurTime - flLastUse[iClient]) >= 0.1) {
+                new bool: bFound = false;
+                for (new iWeapon, String: szClassname[32], s = 0; s < 48; s++)
+                    if (IsValidEdict((iWeapon = GetEntPropEnt(iClient, Prop_Send, "m_hMyWeapons", s)))) {
+                        GetEntityClassname(iWeapon, szClassname, sizeof(szClassname));
+                        //if( szClassname[strlen(szClassname)-1] == '2' )
+                        //	szClassname[strlen(szClassname)-1] = '\0';
+                        if (StrEqual(szClassname, szItem)) {
+                            //EquipPlayerWeapon( iClient, iWeapon );
+                            bFound = true;
+                            break;
+                        }
                     }
+                if (bFound) {
+                    WriteLog("UseWeapon(%d): use %s", iClient, szItem);
+                    FakeClientCommandEx(iClient, "use %s", szItem);
+                    flLastUse[iClient] = flCurTime;
                 }
-            if (bFound) {
-                WriteLog("UseWeapon(%d): use %s", iClient, szItem);
-                FakeClientCommandEx(iClient, "use %s", szItem);
-                flLastUse[iClient] = flCurTime;
-            }
+            } else
+                WriteLog("UseWeapon(%d): %f < 0.1 (item:%s)", iClient, (flCurTime - flLastUse[iClient]), szItem);
         } else
-            WriteLog("UseWeapon(%d): %f < 0.1 (item:%s)", iClient, (flCurTime - flLastUse[iClient]), szItem);
-    } else
-        WriteLog("UseWeapon(%d): client is dead (item:%s)", iClient, szItem);
-    WriteLog("UseWeapon(%d): end", iClient);
+            WriteLog("UseWeapon(%d): client is dead (item:%s)", iClient, szItem);
+        WriteLog("UseWeapon(%d): end", iClient);
 }
 
 stock SetAmmo(iClient, iWeapon, iAmmo) {
@@ -1080,7 +1085,7 @@ if (0 < iClient <= MaxClients && IsClientInGame(iClient) && IsPlayerAlive(iClien
             if (bAllowFists && StrEqual(szClassname, "weapon_fists")) {
                 WriteLog("StripWeapons(%d): skipping '%s' (slot:%d,entity:%d)", iClient, szClassname, s, iWeapon);
                 continue;
-            } else if (bAllowWhiskeyJug && StrEqual(szClassname, "weapon_whiskey")) {
+            } else if (StrEqual(szClassname, "weapon_whiskey")) {
                 WriteLog("StripWeapons(%d): skipping '%s' (slot:%d,entity:%d)", iClient, szClassname, s, iWeapon);
                 continue;
             } else {
