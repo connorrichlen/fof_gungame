@@ -95,7 +95,7 @@ new Handle: g_Timer_GiveWeapon2[MAXPLAYERS + 1] = {
 };
 
 public Plugin: myinfo = {
-    name = "[FoF] Gun Game",
+    name = "[FOF] Gun Game",
     author = "Redux by Skooma - Original plugin by Xpenia Team",
     description = "Fistful of Frags Gun Game",
     version = PLUGIN_VERSION,
