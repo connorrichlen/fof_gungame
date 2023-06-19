@@ -99,7 +99,7 @@ public Plugin: myinfo = {
     author = "Redux by Skooma - Original plugin by Xpenia Team",
     description = "Fistful of Frags Gun Game",
     version = PLUGIN_VERSION,
-    url = "http://www.gamepunch.net"
+    url = "https://connorrichlen.me"
 };
 
 public APLRes: AskPluginLoad2(Handle: hPlugin, bool: bLateLoad, String: szError[], iErrorLength) {
