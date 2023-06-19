@@ -33,11 +33,11 @@
 #define HUD2_X 0.18
 #define HUD2_Y 0.10
 
-#define HUD3_X 0.01 //skooma shoothouse
-#define HUD3_Y 0.00
+//#define HUD3_X 0.01 //skooma shoothouse
+//#define HUD3_Y 0.00
 
-#define HUD4_X 0.99 //skooma.us
-#define HUD4_Y 0.99
+//#define HUD4_X 0.99 //skooma.us
+//#define HUD4_Y 0.99
 
 // cvar handles
 new Handle: sm_fof_gg_base_version = INVALID_HANDLE;
@@ -85,8 +85,8 @@ new Float: flStart[MAXPLAYERS + 1];
 // Handles
 new Handle: hHUDSync1 = INVALID_HANDLE;
 new Handle: hHUDSync2 = INVALID_HANDLE;
-new Handle: hHUDSync3 = INVALID_HANDLE;
-new Handle: hHUDSync4 = INVALID_HANDLE;
+//new Handle: hHUDSync3 = INVALID_HANDLE;
+//new Handle: hHUDSync4 = INVALID_HANDLE;
 new Handle: hWeapons = INVALID_HANDLE;
 // Integers
 new iAmmoOffset = -1;
@@ -154,8 +154,8 @@ public OnPluginStart() {
     AutoExecConfig();
     hHUDSync1 = CreateHudSynchronizer();
     hHUDSync2 = CreateHudSynchronizer();
-    hHUDSync3 = CreateHudSynchronizer();
-    hHUDSync4 = CreateHudSynchronizer();
+    //hHUDSync3 = CreateHudSynchronizer();
+    //hHUDSync4 = CreateHudSynchronizer();
 
     iAmmoOffset = FindSendPropInfo("CFoF_Player", "m_iAmmo");
 
@@ -925,12 +925,12 @@ public Action: Timer_UpdateHUD(Handle: hTimer, any: iUnused) {
         if (IsClientInGame(i)) {
             ClearSyncHud(i, hHUDSync1);
             ClearSyncHud(i, hHUDSync2);
-            ClearSyncHud(i, hHUDSync3);
-            ClearSyncHud(i, hHUDSync4);
-            SetHudTextParams(HUD3_X, HUD3_Y, 1.125, 255, 0, 0, 0, 0, 0.0, 0.0, 0.0);
-            _ShowHudText(i, hHUDSync3, "Skooma's Shoothouse");
-            SetHudTextParams(HUD4_X, HUD4_Y, 1.125, 255, 255, 255, 0, 0, 0.0, 0.0, 0.0);
-            _ShowHudText(i, hHUDSync4, "skooma.us");
+            //ClearSyncHud(i, hHUDSync3);
+            //ClearSyncHud(i, hHUDSync4);
+            //SetHudTextParams(HUD3_X, HUD3_Y, 1.125, 255, 0, 0, 0, 0, 0.0, 0.0, 0.0);
+            //_ShowHudText(i, hHUDSync3, "Skooma's Shoothouse");
+            //SetHudTextParams(HUD4_X, HUD4_Y, 1.125, 255, 255, 255, 0, 0, 0.0, 0.0, 0.0);
+            //_ShowHudText(i, hHUDSync4, "skooma.us");
             if (iWinner > 0) {
                 if (nClients == iWinner) {
                     SetHudTextParams(HUD1_X, HUD1_Y, 1.125, 0, 255, 0, 180, 0, 0.0, 0.0, 0.0);
