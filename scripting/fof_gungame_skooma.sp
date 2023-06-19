@@ -466,6 +466,8 @@ public Event_PlayerDeath(Handle: hEvent,
 
     if (StrEqual(szWeapon, "arrow"))
         strcopy(szWeapon, sizeof(szWeapon), "weapon_bow") || strcopy(szWeapon, sizeof(szWeapon), "weapon_bow_black");
+    else if (StrEqual(szWeapon, "x_arrow"))
+        strcopy(szWeapon, sizeof(szWeapon), "weapon_xbow");
     else if (StrEqual(szWeapon, "thrown_axe"))
         strcopy(szWeapon, sizeof(szWeapon), "weapon_axe");
     else if (StrEqual(szWeapon, "thrown_knife"))
